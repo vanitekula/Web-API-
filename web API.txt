@@ -1,0 +1,262 @@
+Creating Project>> ASP.Net Core WebApplication>>
+
+tools >>nuget package>>packagemanager
+
+pm>
+Install-package Microsoft.EntityFrameworkCore.SqlServer
+pm>
+Install-package Microsoft.EntityFrameworkCore.Tools
+pm>
+Scaffold-DbContext "Server =OJAS-DD252\SQLEXPRESS ;Database =Ojasdb ; User ID = sa ; Password = Ojas@15251525" Microsoft.EntityframeworkCore.SqlServer -OutputDir Models
+=============================================================================================================
+
+appsetting.json
+"DbConnection": "Server =OJAS-DD252\\SQLEXPRESS ;Database =Ojasdb ; User ID = sa ; Password = Ojas@15251525;"
+  
+========================================================
+startup page:
+           using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using WebApplication35.Models;
+using WebApplication35.IServices;
+using WebApplication35.Services;
+using Microsoft.EntityFrameworkCore;
+
+namespace WebApplication35
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllers();
+            services.AddDbContext<OjasdbContext>(options =>
+            options.UseSqlServer(Configuration["DbConnection"]));
+            services.AddTransient<IEmployeeServices, EmployeeService>();
+
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+    }
+}
+
+====================================================================
+Employee Controller
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using WebApplication35.IServices;
+using WebApplication35.Models;
+
+namespace WebApplication35.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmployeeController : ControllerBase
+    {
+        private readonly IEmployeeServices employeeServices;
+
+        public EmployeeController(IEmployeeServices employeeServices)
+        {
+            this.employeeServices = employeeServices;
+        }
+        [HttpGet]
+        [Route("[action]")]
+        [Route("api/Employee/GetEmployee")]
+
+
+        public IEnumerable<Employee> GetEmployees()
+        {
+            return (IEnumerable<Employee>)employeeServices.GetEmployees();
+        }
+
+    }
+}
+================================================================================
+IEmployeeServices
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using WebApplication35.Models;
+
+
+namespace WebApplication35.IServices
+{
+    interface IEmployeeServices
+    {
+        IEnumerable<Employee> GetEmployees();
+        Employee GetEmployeeById(int id);
+        Employee AddEmployee(Employee employee);
+        Employee UpdateEmployee(Employee employee);
+        Employee DeleteEmployee(int id);
+
+    }
+}
+=============================================================================
+EmployeeServices
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using WebApplication35.IServices;
+using WebApplication35.Models;
+
+namespace WebApplication35.Services
+{
+    public class EmployeeService : IEmployeeServices
+    {
+        OjasdbContext dbContext;
+
+        public EmployeeService(OjasdbContext dbContext)
+        {
+            this.dbContext = dbContext;
+
+        }
+
+        public Employee AddEmployee(Employee employee)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Employee DeleteEmployee(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Employee GetEmployeeById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Employee> GetEmployees()
+        {
+            return dbContext.Employees.ToList();
+        }
+
+        public Employee UpdateEmployee(Employee employee)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+===============================================================================
+
+appsettings.json
+
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "DbConnection": "Server =OJAS-DD252\\SQLEXPRESS ;Database =Ojasdb ; User ID = sa ; Password = Ojas@15251525;"
+  
+}
+===============================================================================================
+OjasdbContext
+
+
+using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
+
+namespace WebApplication35.Models
+{
+    public partial class OjasdbContext : DbContext
+    {
+        public OjasdbContext()
+        {
+        }
+
+        public OjasdbContext(DbContextOptions<OjasdbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<Employee> Employees { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server =OJAS-DD252\\SQLEXPRESS ;Database =Ojasdb ; User ID = sa ; \nPassword = Ojas@15251525");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
+
+            modelBuilder.Entity<Employee>(entity =>
+            {
+                entity.HasKey(e => e.Eid)
+                    .HasName("PK__Employee__C1971B530FBC2050");
+
+                entity.ToTable("Employee");
+
+                entity.Property(e => e.Eid).ValueGeneratedNever();
+
+                entity.Property(e => e.Ename)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+===========================================================================================
+
+
