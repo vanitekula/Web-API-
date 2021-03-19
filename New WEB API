@@ -43,7 +43,7 @@ namespace WebApplication18.IServices
 {
     public interface IEmployeeServices
     {
-        IEnumerable<Employee> GetEmployees();
+        IEnumerable<Employee> GetEmployee();
         Employee GetEmployeeBy(int id);
         Employee AddEmployee(Employee employee);
         Employee UpdateEmployee(Employee employee);
@@ -73,7 +73,7 @@ namespace WebApplication18.Services
         {
             this.dbContext = dbContext;
         }
-        public IEnumerable<Employee> GetEmployees()
+        public IEnumerable<Employee> GetEmployee()
         {
             return dbContext.Employees.ToList();
         }
@@ -127,9 +127,9 @@ namespace WebApplication35.Controllers
         [Route("api/Employee/GetEmployee")]
 
 
-        public IEnumerable<Employee> GetEmployees()
+        public IEnumerable<Employee> GetEmployee()
         {
-            return (IEnumerable<Employee>)employeeServices.GetEmployees();
+            return (IEnumerable<Employee>)employeeServices.GetEmployee();
         }
 
     }
@@ -258,4 +258,4 @@ namespace WebApplication18
     }
 }
 =======================================================================================================================
-10. Connect to Postman by using ""https://localhost:44371/api/Employee/GetEmployees""
+10. Connect to Postman by using ""https://localhost:44371/api/Employee/GetEmployee""
