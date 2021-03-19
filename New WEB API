@@ -98,46 +98,40 @@ namespace WebApplication18.Services
     }
 }
 ======================================================================================================
-7.Create Employee Controller with Empty
+7.Create Employee Controller with Empty and select API empty 
 
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebApplication18.Models;
-using WebApplication18.IServices;
+using WebApplication35.IServices;
+using WebApplication35.Models;
 
-namespace WebApplication18.Services
+namespace WebApplication35.Controllers
 {
-    public class EmployeeServices : IEmployeeServices
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmployeeController : ControllerBase
     {
-        OjasdbContext dbContext;
-        public EmployeeServices(OjasdbContext dbContext)
+        private readonly IEmployeeServices employeeServices;
+
+        public EmployeeController(IEmployeeServices employeeServices)
         {
-            this.dbContext = dbContext;
+            this.employeeServices = employeeServices;
         }
+        [HttpGet]
+        [Route("[action]")]
+        [Route("api/Employee/GetEmployee")]
+
+
         public IEnumerable<Employee> GetEmployees()
         {
-            return dbContext.Employees.ToList();
-        }
-        public Employee AddEmployee(Employee employee)
-        {
-            throw new NotImplementedException();
+            return (IEnumerable<Employee>)employeeServices.GetEmployees();
         }
 
-        public Employee DeleteEmployee(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Employee GetEmployeeBy(int id)
-        {
-            throw new NotImplementedException();
-        }
-        public Employee UpdateEmployee(Employee employee)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 ==================================================================================================
